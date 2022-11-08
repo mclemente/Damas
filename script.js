@@ -34,21 +34,6 @@ class Gameboard {
 		const y = 8 - position[1];
 		return this.getPiece(x, y);
 	}
-
-	// setup_html() {
-	// 	let s = "<table>";
-	// 	for (let i = 0; i < this.TABLE_SIZE; i++) {
-	// 		s += "\n<tr>";
-	// 		for (let j = 0; j < this.TABLE_SIZE; j++) {
-	// 			const piece = this.getPiece(i, j);
-	// 			if (!piece) s += "\n<td></td>";
-	// 			else {
-	// 				s += `\n<td><p class="${piece.color}-piece" data-x="${i}" data-y="${j}" data-id="${piece.id}" data-color="${piece.color}"></p></td>`;
-	// 			}
-	// 		}
-	// 	}
-	// 	return s;
-	// }
 }
 
 class TabletopGame {
@@ -447,8 +432,8 @@ const EMPTY = -1;
 
 // DOM
 const table = document.querySelector("table");
-pieces = document.querySelectorAll("p");
-cells = document.querySelectorAll("td");
+const pieces = document.querySelectorAll("p");
+const cells = document.querySelectorAll("td");
 const redTurnText = document.querySelectorAll(".red-turn-text");
 const blackTurntext = document.querySelectorAll(".black-turn-text");
 const divider = document.querySelector("#divider");
