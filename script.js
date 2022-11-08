@@ -432,8 +432,8 @@ const EMPTY = -1;
 
 // DOM
 const table = document.querySelector("table");
-const pieces = document.querySelectorAll("p");
-const cells = document.querySelectorAll("td");
+let pieces = document.querySelectorAll("p");
+let cells = document.querySelectorAll("td");
 const redTurnText = document.querySelectorAll(".red-turn-text");
 const blackTurntext = document.querySelectorAll(".black-turn-text");
 const divider = document.querySelector("#divider");
