@@ -120,6 +120,16 @@ class TabletopGame {
 		return s;
 	}
 
+	atualizaHtml() {
+		table.innerHTML = this.setup_html();
+		pieces = document.querySelectorAll("p");
+		cells = document.querySelectorAll("td");
+		// initialize event listeners on pieces
+		for (let i = 0; i < pieces.length; i++) {
+			pieces[i].addEventListener("click", (event) => getPlayerPieces(event));
+		}
+	}
+
 	move(piecePosition, newPosition) {
 		const piece = this.board.select(piecePosition);
 		if (piece.color === this.turn) {
@@ -162,6 +172,7 @@ class TabletopGame {
 		this.timer.pause();
 		this.turn = [WHITE, BLACK][+(this.turn === WHITE)];
 		this.timer.start();
+		this.atualizaHtml();
 		const colors = ["lightGrey", "black"];
 		for (let i = 0; i < 2; i++) {
 			redTurnText[i].style.color = colors[+(this.turn === WHITE)];
