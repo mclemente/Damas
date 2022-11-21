@@ -19,16 +19,6 @@ class Gameboard {
 		return this.pieces.find((piece) => piece.position.x === x && piece.position.y === y) ?? null;
 	}
 
-	move(piecePosition, newPosition) {
-		newPosition = {
-			x: convertLetterToNumber(newPosition[0]) - 1,
-			y: 8 - newPosition[1],
-		};
-		const piece = this.select(piecePosition);
-		if (piece) piece.move(newPosition);
-		else console.log("Movimento inválido.");
-	}
-
 	select(position) {
 		const x = convertLetterToNumber(position[0]) - 1;
 		const y = 8 - position[1];
