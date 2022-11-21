@@ -41,8 +41,8 @@ class TabletopGame {
 		this.board = new Gameboard(this.TABLE_SIZE);
 		this.board.parent = this;
 		this.players = {
-			[WHITE]: { points: 0 },
-			[BLACK]: { points: 0 },
+			[WHITE]: { timer: new Timer("relogio-vermelho"), points: 0 },
+			[BLACK]: { timer: new Timer("relogio-preto"), points: 0 },
 		};
 		// GAMEBOARD = new Array(this.TABLE_SIZE);
 		// for (let i = 0; i < this.TABLE_SIZE; i++) {
@@ -169,12 +169,20 @@ class TabletopGame {
 	// }
 
 	endTurn() {
+		this.timer.pause();
 		this.turn = [WHITE, BLACK][+(this.turn === WHITE)];
+		this.timer.start();
 		const colors = ["lightGrey", "black"];
 		for (let i = 0; i < 2; i++) {
 			redTurnText[i].style.color = colors[+(this.turn === WHITE)];
 			blackTurntext[i].style.color = colors[+(this.turn !== WHITE)];
 		}
+		relogioVermelho.style.color = colors[+(this.turn === WHITE)];
+		relogioPreto.style.color = colors[+(this.turn !== WHITE)];
+	}
+
+	get timer() {
+		return this.players[this.turn].timer;
 	}
 
 	ascii() {
@@ -421,10 +429,47 @@ class CheckersPiece extends Piece {
 	}
 }
 
+// Relógio
+
+class Timer {
+	constructor(target) {
+		this.target = document.querySelector(`#${target}`);
+		this.totalSeconds = TEMPO_MAX;
+	}
+	display(tempo) {
+		var segundos = Math.floor(tempo % 60);
+		var minutos = Math.floor((tempo / 60) % 60);
+		this.target.innerHTML = [minutos, segundos].map(this.pad).join(":");
+	}
+	start() {
+		var self = this;
+		if (this.totalSeconds) {
+			this.interval = setInterval(function () {
+				self.display(self.totalSeconds);
+				self.totalSeconds -= 1;
+				if (self.counter < 0) {
+					clearInterval(this.interval);
+				}
+			}, 1000);
+		}
+	}
+	pad(tempo) {
+		return tempo < 10 ? "0" + tempo : tempo;
+	}
+	pause() {
+		clearInterval(this.interval);
+		delete this.interval;
+	}
+	resume() {
+		if (!this.interval) this.start();
+	}
+}
+
 /***************************************************************************
  * PUBLIC CONSTANTS
  **************************************************************************/
 
+const TEMPO_MAX = 180;
 const BLACK = "b";
 const WHITE = "w";
 
@@ -432,10 +477,12 @@ const EMPTY = -1;
 
 // DOM
 const table = document.querySelector("table");
-let pieces = document.querySelectorAll("p");
-let cells = document.querySelectorAll("td");
+pieces = document.querySelectorAll("p");
+cells = document.querySelectorAll("td");
 const redTurnText = document.querySelectorAll(".red-turn-text");
+const relogioVermelho = document.getElementById("relogio-vermelho");
 const blackTurntext = document.querySelectorAll(".black-turn-text");
+const relogioPreto = document.getElementById("relogio-preto");
 const divider = document.querySelector("#divider");
 
 /*---------- Helpers ----------*/
@@ -457,3 +504,8 @@ function convertLetterToNumber(str) {
 let game = new Checkers();
 game.reset();
 console.log(game.ascii());
+var button = document.querySelector("#botao");
+button.addEventListener("click", function () {
+	game.players[WHITE].timer.start();
+	button.remove();
+});
