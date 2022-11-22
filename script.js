@@ -113,7 +113,7 @@ class TabletopGame {
 				let piece = Object.values(pieces).find((piece) => piece.position.x == j && piece.position.y == i);
 				if (piece) {
 					delete pieces[piece.id];
-					s += `\n<td><p class="${piece.color}-piece" data-i="${i}" data-y="${j}" data-id="${piece.id}" data-color="${piece.color}"></p></td>`;
+					s += `\n<td><p class="${piece.color}-piece" data-x="${i}" data-y="${j}" data-id="${piece.id}" data-color="${piece.color}"></p></td>`;
 				} else s += "\n<td></td>";
 			}
 		}
@@ -342,7 +342,6 @@ class Piece {
 		this.type = type;
 		this.color = color;
 		this.position = position;
-		this.negativeY = color === BLACK;
 	}
 	static id = 0;
 	movements = [];
@@ -374,6 +373,10 @@ class Piece {
 	get indexOfBoardPiece() {
 		return this.position.y * 8 + this.position.x;
 	}
+
+	get negativeY() {
+		return this.color === BLACK;
+	}
 }
 
 class CheckersPiece extends Piece {
@@ -386,16 +389,18 @@ class CheckersPiece extends Piece {
 		this.validMovements = [];
 		this.validCaptures = [];
 		this.checkValidMovements();
+		const movimentos = [];
+		const capturas = [];
 		for (let mov of this.validMovements) {
 			movimentos.push(`${(mov.x + 10).toString(36)}${mov.y}`);
 		}
-		if (movimentos.length) console.log(`Movimentos válidos: ${movimentos.join(", ")}`);
+		if (movimentos.length) console.log(`Movimentos válidos: ${movimentos.sort().join(", ")}`);
 		this.checkValidCaptures();
 
 		for (let mov of this.validCaptures) {
-			movimentos.push(`${(mov.x + 10).toString(36)}${mov.y}`);
+			capturas.push(`${(mov.x + 10).toString(36)}${mov.y}`);
 		}
-		if (movimentos.length) console.log(`Capturas válidas: ${movimentos.join(", ")}`);
+		if (capturas.length) console.log(`Capturas válidas: ${capturas.sort().join(", ")}`);
 	}
 	checkValidMovements() {
 		// TODO checar movimentos com NUM (X) negativo para as peças vermelhas
@@ -498,6 +503,10 @@ function convertLetterToNumber(str) {
 		return out;
 	}
 	return undefined;
+}
+
+function getPlayerPieces(event) {
+	game.select("abcdefgh"[event.target.dataset.y] + "87654321"[event.target.dataset.x]);
 }
 
 // givePiecesEventListeners();
