@@ -551,5 +551,8 @@ button.addEventListener("click", function () {
 	button.remove();
 });
 
-game.move("a3", "b4");
-game.move("d6", "c5");
+// Testes
+// game.move("a3", "b4");
+// game.move("d6", "c5");
+// game.move("b4", "d6");
+// game.move("b6", "c5");
