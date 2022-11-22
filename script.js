@@ -514,8 +514,8 @@ const EMPTY = -1;
 
 // DOM
 const table = document.querySelector("table");
-pieces = document.querySelectorAll("p");
-cells = document.querySelectorAll("td");
+let pieces = document.querySelectorAll("p");
+let cells = document.querySelectorAll("td");
 const redTurnText = document.querySelectorAll(".red-turn-text");
 const relogioVermelho = document.getElementById("relogio-vermelho");
 const blackTurntext = document.querySelectorAll(".black-turn-text");
