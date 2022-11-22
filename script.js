@@ -116,7 +116,8 @@ class TabletopGame {
 			for (let j = 0; j < this.TABLE_SIZE; j++) {
 				let piece = Object.values(pieces).find((piece) => piece.position.x == j && piece.position.y == i);
 				if (piece) {
-					delete pieces[piece.id];
+					const key = Object.keys(pieces).find((key) => pieces[key].id === piece.id);
+					delete pieces[key];
 					s += `\n<td><p class="${piece.color}-piece" data-x="${i}" data-y="${j}" data-id="${piece.id}" data-color="${piece.color}"></p></td>`;
 				} else s += "\n<td></td>";
 			}
