@@ -11,6 +11,10 @@ class Gameboard {
 		this.pieces.push(piece);
 	}
 
+	remove(piece) {
+		this.pieces = this.pieces.filter((p) => p.id !== piece.id);
+	}
+
 	get children() {
 		return this.pieces;
 	}
@@ -145,6 +149,10 @@ class TabletopGame {
 	}
 
 	put() {}
+
+	capture(piece) {
+		this.board.remove(piece);
+	}
 
 	reset() {
 		this.load(this.DEFAULT_POSITION);
@@ -360,13 +368,26 @@ class Piece {
 		this.checkValidCaptures();
 		if (this.validMovements.some((mov) => mov.x == position.x && mov.y == position.y)) {
 			console.log(
-				`Moved from ${(this.position.x + 10).toString(36)}${this.position.y - 2} to ${(
+				`A peça se moveu de ${(this.position.x + 10).toString(36)}${this.position.y - 2} to ${(
 					position.x + 10
 				).toString(36)}${position.y}.`
 			);
 			// delete GAMEBOARD[this.position.y][this.position.x];
 			this.position = { x: position.x, y: position.y };
 			// GAMEBOARD[this.position.y][this.position.x] = this;
+			if (endTurn) game.endTurn();
+			console.log(game.ascii());
+		} else if (this.validCaptures.some((cap) => cap.x == position.x && cap.y == position.y)) {
+			console.log(
+				`A peça se moveu de ${(this.position.x + 10).toString(36)}${this.position.y - 2} to ${(
+					position.x + 10
+				).toString(36)}${position.y} e capturou uma peça.`
+			);
+			// delete GAMEBOARD[this.position.y][this.position.x];
+			this.position = { x: position.x, y: position.y };
+			// GAMEBOARD[this.position.y][this.position.x] = this;
+			const capturada = this.validCaptures.find((cap) => cap.x == position.x && cap.y == position.y).captura;
+			game.capture(capturada);
 			if (endTurn) game.endTurn();
 			console.log(game.ascii());
 		} else console.log("Movimento inválido.");
@@ -378,6 +399,14 @@ class Piece {
 
 	get negativeY() {
 		return this.color === BLACK;
+	}
+
+	get x() {
+		return this.position.x;
+	}
+
+	get y() {
+		return this.position.y;
 	}
 }
 
@@ -397,8 +426,8 @@ class CheckersPiece extends Piece {
 			movimentos.push(`${(mov.x + 10).toString(36)}${mov.y}`);
 		}
 		if (movimentos.length) console.log(`Movimentos válidos: ${movimentos.sort().join(", ")}`);
-		this.checkValidCaptures();
 
+		this.checkValidCaptures();
 		for (let mov of this.validCaptures) {
 			capturas.push(`${(mov.x + 10).toString(36)}${mov.y}`);
 		}
@@ -428,14 +457,11 @@ class CheckersPiece extends Piece {
 			if (position && position.color !== this.color && !this.parent.select(landingPosition)) {
 				this.validCaptures.push({
 					x: this.position.x + 2 * capX,
-					y: diffY + 2 * capY,
+					y: diffY + (this.negativeY ? 2 : -2) * capY,
+					captura: position,
 				});
 			}
 		}
-	}
-	onCapture(position) {
-		GAMEBOARD[position.y][position.x] = undefined;
-		this.move({ y: position.y + (this.negativeY ? -1 : 1), x: position.x + 1 }, false);
 	}
 }
 
@@ -523,3 +549,6 @@ button.addEventListener("click", function () {
 	game.players[WHITE].timer.start();
 	button.remove();
 });
+
+game.move("a3", "b4");
+game.move("d6", "c5");
