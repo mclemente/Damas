@@ -47,6 +47,7 @@ class TabletopGame {
 	ep_square = EMPTY;
 	half_moves = 0;
 	move_number = 1;
+	selected = null;
 	// history = [];
 
 	DEFAULT_POSITION = "8/8/8/8/8/8/8/8 w ---- - 0 1";
@@ -100,6 +101,9 @@ class TabletopGame {
 		for (let i = 0; i < pieces.length; i++) {
 			pieces[i].addEventListener("click", (event) => getPlayerPieces(event));
 		}
+		for (let i = 0; i < cells.length; i++) {
+			cells[i].addEventListener("click", (event) => movePieces(event));
+		}
 
 		return true;
 	}
@@ -118,8 +122,8 @@ class TabletopGame {
 				if (piece) {
 					const key = Object.keys(pieces).find((key) => pieces[key].id === piece.id);
 					delete pieces[key];
-					s += `\n<td><p class="${piece.color}-piece" data-x="${i}" data-y="${j}" data-id="${piece.id}" data-color="${piece.color}"></p></td>`;
-				} else s += "\n<td></td>";
+					s += `\n<td data-x="${i}" data-y="${j}"><p class="${piece.color}-piece" data-x="${i}" data-y="${j}" data-id="${piece.id}" data-color="${piece.color}"></p></td>`;
+				} else s += `\n<td data-x="${i}" data-y="${j}"></td>`;
 			}
 		}
 		return s;
@@ -133,18 +137,22 @@ class TabletopGame {
 		for (let i = 0; i < pieces.length; i++) {
 			pieces[i].addEventListener("click", (event) => getPlayerPieces(event));
 		}
+		for (let i = 0; i < cells.length; i++) {
+			cells[i].addEventListener("click", (event) => movePieces(event));
+		}
 	}
 
 	move(piecePosition, newPosition) {
 		const piece = this.board.select(piecePosition);
-		if (piece.color === this.turn) {
+		if (!piece) console.error("Peça não existe");
+		else if (piece.color === this.turn) {
 			newPosition = {
 				x: convertLetterToNumber(newPosition[0]) - 1,
 				y: 8 - newPosition[1],
 			};
 			piece.move(newPosition);
 		} else {
-			console.log("Movimento inválido: não é o seu turno.");
+			console.warn("Movimento inválido: não é o seu turno.");
 			console.log(game.ascii());
 		}
 	}
@@ -162,7 +170,7 @@ class TabletopGame {
 	select(position) {
 		const piece = this.board.select(position);
 		if (piece) piece.onSelect();
-		return this.board.select(position);
+		this.selected = this.board.select(position);
 	}
 
 	// update_setup(fen) {
@@ -359,7 +367,7 @@ class Piece {
 	validMovements = [];
 
 	getPosition() {
-		return `${(this.position.x + 10).toString(36)}${this.position.y + 1}`;
+		return `${(this.position.x + 10).toString(36)}${"87654321"[this.position.y]}`;
 	}
 
 	move(position, endTurn = true) {
@@ -537,7 +545,15 @@ function convertLetterToNumber(str) {
 }
 
 function getPlayerPieces(event) {
-	game.select("abcdefgh"[event.target.dataset.y] + "87654321"[event.target.dataset.x]);
+	const position = "abcdefgh"[event.target.dataset.y] + "87654321"[event.target.dataset.x];
+	game.select(position);
+}
+
+function movePieces(event) {
+	const position = "abcdefgh"[event.target.dataset.y] + "87654321"[event.target.dataset.x];
+	if (!event.target.dataset.id && game.selected) {
+		game.move(game.selected.getPosition(), position);
+	}
 }
 
 // givePiecesEventListeners();
