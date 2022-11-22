@@ -19,9 +19,9 @@ class Gameboard {
 		return this.pieces.find((piece) => piece.position.x === x && piece.position.y === y) ?? null;
 	}
 
-	select(position) {
+	select(position, negativeY = false) {
 		const x = convertLetterToNumber(position[0]) - 1;
-		const y = 8 - position[1];
+		const y = negativeY ? position[1] : 8 - position[1];
 		return this.getPiece(x, y);
 	}
 }
@@ -354,6 +354,8 @@ class Piece {
 	}
 
 	move(position, endTurn = true) {
+		this.validCaptures = [];
+		this.validMovements = [];
 		this.checkValidMovements();
 		this.checkValidCaptures();
 		if (this.validMovements.some((mov) => mov.x == position.x && mov.y == position.y)) {
@@ -406,9 +408,10 @@ class CheckersPiece extends Piece {
 		// TODO checar movimentos com NUM (X) negativo para as peças vermelhas
 		for (let mov of this.movements) {
 			const diffX = this.position.x + mov.x;
-			const diffY = 8 - this.position.y + (this.negativeY ? -mov.y : mov.y);
+			// const diffY = 8 - this.position.y + (this.negativeY ? -mov.y : mov.y);
+			const diffY = (this.negativeY ? this.position.y : 8 - this.position.y) + mov.y;
 			if (diffX < 0 || diffY < 0) continue;
-			const position = this.parent.select(`${(diffX + 10).toString(36)}${diffY}`);
+			const position = this.parent.select(`${(diffX + 10).toString(36)}${diffY}`, this.negativeY);
 			if (!position) {
 				this.validMovements.push({ x: diffX, y: diffY });
 			}
@@ -416,15 +419,16 @@ class CheckersPiece extends Piece {
 	}
 	checkValidCaptures() {
 		for (let cap of this.captures) {
-			const capY = this.negativeY ? -cap.y : cap.y;
 			const capX = cap.x;
-			const attackPosition = `${(this.position.x + capX + 10).toString(36)}${this.position.y + capY}`;
-			const landingPosition = `${(this.position.x + 2 * capX + 10).toString(36)}${this.position.y + 2 * capY}`;
-			const position = this.parent.select(attackPosition);
+			const capY = cap.y;
+			const diffY = this.negativeY ? this.position.y : 8 - this.position.y;
+			const attackPosition = `${(this.position.x + capX + 10).toString(36)}${diffY + capY}`;
+			const landingPosition = `${(this.position.x + 2 * capX + 10).toString(36)}${diffY + 2 * capY}`;
+			const position = this.parent.select(attackPosition, this.negativeY);
 			if (position && position.color !== this.color && !this.parent.select(landingPosition)) {
 				this.validCaptures.push({
 					x: this.position.x + 2 * capX,
-					y: this.position.y + 2 * capY,
+					y: diffY + 2 * capY,
 				});
 			}
 		}
